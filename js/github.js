@@ -41,7 +41,7 @@ function next2() {
   if (this.readyState==4 && this.status==200)
     {
     wng_website = JSON.parse(this.responseText);
-    console.log(wng_game);
+    console.log(wng_website);
     combine();
     }
   }
@@ -51,28 +51,34 @@ function next2() {
 
 function combine() {
   var i=0;
-  for (var g in wng_game) {
+  for (var id in wng_game) {
     commits[i]={};
-    commits[i].date=new Date(wng_game[g].commit.author.date);
+    commits[i].date=new Date(wng_game[id].commit.author.date);
     commits[i].type="game";
-    commits[i].message=wng_game[g].commit.message;
-    commits[i].author=wng_game[g].author.login;
+    commits[i].message=wng_game[id].commit.message;
+    commits[i].author=wng_game[id].author.login;
+    commits[i].sha=wng_game[id].sha;
+    commits[i].pic=wng_game[id].author.avatar_url;
     i++;
   }
-  for (var s in wng_server) {
+  for (var id in wng_server) {
     commits[i]={};
-    commits[i].date=new Date(wng_server[s].commit.author.date);
+    commits[i].date=new Date(wng_server[id].commit.author.date);
     commits[i].type="server";
-    commits[i].message=wng_server[s].commit.message;
-    commits[i].author=wng_server[s].author.login;
+    commits[i].message=wng_server[id].commit.message;
+    commits[i].author=wng_server[id].author.login;
+    commits[i].sha=wng_server[id].sha;
+    commits[i].pic=wng_server[id].author.avatar_url;
     i++;
   }
-  for (var w in wng_website) {
+  for (var id in wng_website) {
     commits[i]={};
-    commits[i].date=new Date(wng_website[w].commit.author.date);
+    commits[i].date=new Date(wng_website[id].commit.author.date);
     commits[i].type="website";
-    commits[i].message=wng_website[w].commit.message;
-    commits[i].author=wng_website[w].author.login;
+    commits[i].message=wng_website[id].commit.message;
+    commits[i].author=wng_website[id].author.login;
+    commits[i].sha=wng_website[id].sha;
+    commits[i].pic=wng_website[id].author.avatar_url;
     i++;
   }
   commits = commits.sort(function(a,b) {
@@ -86,14 +92,26 @@ function drawCommits() {
   console.log(commits);
   for (var d in commits){
     var date=Math.floor((today-commits[d].date) / (1000*60*60*24));
+    document.getElementById("github").innerHTML+="<img style='width:12px;' src='"+commits[d].pic+"'>";
     document.getElementById("github").innerHTML+=commits[d].author + " -> ";
     document.getElementById("github").innerHTML+=commits[d].type;
     document.getElementById("github").innerHTML+=" ( "+commits[d].message + " ) / ";
     if (date == 0) {
       date=Math.floor((today-commits[d].date) / (1000*60*60));
-      document.getElementById("github").innerHTML+="vor "+date + " Std</br>";
+      if (date == 0) {
+        date=Math.floor((today-commits[d].date) / (1000*60));
+        if (date == 0) {
+          date=Math.floor((today-commits[d].date) / (1000));
+          document.getElementById("github").innerHTML+="vor "+date + " Sec";
+        } else {
+          document.getElementById("github").innerHTML+="vor "+date + " Min";
+        }
+      } else {
+        document.getElementById("github").innerHTML+="vor "+date + " Std";
+      }
     } else {
-      document.getElementById("github").innerHTML+="vor "+date + " Tagen</br>";
+      document.getElementById("github").innerHTML+="vor "+date + " Tagen";
     }
+    document.getElementById("github").innerHTML+="<small style='color:gray;'> [ "+commits[d].sha + " ] </small></br>";
   }
 }
