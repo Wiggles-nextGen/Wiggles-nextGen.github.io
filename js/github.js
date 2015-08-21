@@ -3,6 +3,7 @@
 var xhr = new XMLHttpRequest();
 var wng_server;
 var wng_game;
+var wng_website;
 var commits=[];
 
 if (xhr) {
@@ -20,84 +21,79 @@ if (xhr) {
   xhr.send(null);
 }
 
-function next () {
+function next() {
   xhr.onreadystatechange=function()
   {
   if (this.readyState==4 && this.status==200)
     {
-    //document.getElementById("github").innerHTML=this.responseText;
     wng_game = JSON.parse(this.responseText);
     console.log(wng_game);
-    combine();
+    next2();
     }
   }
   xhr.open("GET","https://api.github.com/repos/wiggles-nextgen/wng-game/commits",true);
   xhr.send(null);
 }
 
-function combine() {
-  var i=0;
-  var ig=0;
-  var is=0;
-  while (i < (wng_game.length + wng_server.length)) {
-    var g;
-    var s;
-//    console.log("i"+i);
-//    console.log("ig"+ig);
-//    console.log("is"+is);
-
-    if(ig < wng_game.length)
-      g = new Date(wng_game[ig].commit.author.date);
-    else
-      g = new Date(wng_game[ig-1].commit.author.date);
-    if(is < wng_server.length)
-      s = new Date(wng_server[is].commit.author.date);
-    else
-      s = new Date(wng_server[is-1].commit.author.date);
-
-//    console.log(g > s);
-//    console.log(g);
-//    console.log(s);
-    commits[i]={};
-    if (g > s && ig !== wng_game.length) {
-      commits[i].type="game";
-      commits[i].date=g;
-      commits[i].message=wng_game[ig].commit.message;
-      commits[i].author=wng_game[ig].author.login;
-      ig++;
-      i++;
-    } else if (g < s && is !== wng_server.length) {
-      commits[i].type="server";
-      commits[i].date=s;
-      commits[i].message=wng_server[is].commit.message;
-      commits[i].author=wng_server[is].author.login;
-      is++;
-      i++;
-    } else if (ig < wng_game.length) {
-      commits[i].type="game";
-      commits[i].date=g;
-      commits[i].message=wng_game[ig].commit.message;
-      commits[i].author=wng_game[ig].author.login;
-      ig++;
-      i++;
-    } else {
-      commits[i].type="server";
-      commits[i].date=s;
-      commits[i].message=wng_server[is].commit.message;
-      commits[i].author=wng_server[is].author.login;
-      is++;
-      i++;
+function next2() {
+  xhr.onreadystatechange=function()
+  {
+  if (this.readyState==4 && this.status==200)
+    {
+    wng_website = JSON.parse(this.responseText);
+    console.log(wng_game);
+    combine();
     }
   }
+  xhr.open("GET","https://api.github.com/repos/wiggles-nextgen/Wiggles-nextGen.github.io/commits",true);
+  xhr.send(null);
+}
+
+function combine() {
+  var i=0;
+  for (var g in wng_game) {
+    commits[i]={};
+    commits[i].date=new Date(wng_game[g].commit.author.date);
+    commits[i].type="game";
+    commits[i].message=wng_game[g].commit.message;
+    commits[i].author=wng_game[g].author.login;
+    i++;
+  }
+  for (var s in wng_server) {
+    commits[i]={};
+    commits[i].date=new Date(wng_server[s].commit.author.date);
+    commits[i].type="server";
+    commits[i].message=wng_server[s].commit.message;
+    commits[i].author=wng_server[s].author.login;
+    i++;
+  }
+  for (var w in wng_website) {
+    commits[i]={};
+    commits[i].date=new Date(wng_website[w].commit.author.date);
+    commits[i].type="website";
+    commits[i].message=wng_website[w].commit.message;
+    commits[i].author=wng_website[w].author.login;
+    i++;
+  }
+  commits = commits.sort(function(a,b) {
+    return a.date < b.date;
+  });
   drawCommits();
 }
 
 function drawCommits() {
+  var today = new Date();
   console.log(commits);
   for (var d in commits){
+    var date=Math.floor((today-commits[d].date) / (1000*60*60*24));
     document.getElementById("github").innerHTML+=commits[d].author + " -> ";
     document.getElementById("github").innerHTML+=commits[d].type;
     document.getElementById("github").innerHTML+=" ( "+commits[d].message + " ) / ";
-    document.getElementById("github").innerHTML+=commits[d].date + "</br>";
+    if (date == 0) {
+      date=Math.floor((today-commits[d].date) / (1000*60*60));
+      document.getElementById("github").innerHTML+="vor "+date + " Std</br>";
+    } else {
+      document.getElementById("github").innerHTML+="vor "+date + " Tagen</br>";
+    }
   }
 }
