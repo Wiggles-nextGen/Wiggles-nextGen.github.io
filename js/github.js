@@ -82,7 +82,7 @@ function combine() {
     i++;
   }
   commits = commits.sort(function(a,b) {
-    return a.date < b.date;
+    return b.date - a.date;
   });
   drawCommits();
 }
