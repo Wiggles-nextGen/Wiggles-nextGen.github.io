@@ -1,0 +1,20 @@
+{
+  "name": "Wiggles-nextGen.github.io",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Wiggles-nextGen/Wiggles-nextGen.github.io",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.5",
+    "angular-animate": "~1.4.5",
+    "angular-aria": "~1.4.5",
+    "angular-material": "~0.11.0",
+    "hammerjs": "~2.0.4"
+  }
+}
